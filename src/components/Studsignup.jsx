@@ -96,9 +96,9 @@ function Signup() {
             </span>
           </div>
 
-          <button type="submit" className="btn btn-purple w-100 mb-3">
-            Login
-          </button>
+         <Link to="/dashboard"><button type="submit" className="btn btn-purple w-100 mb-3">
+            Logi
+          </button></Link> 
 
           <div className="text-center">
             <span>Already have an account? </span>
