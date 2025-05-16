@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Link } from "react-router-dom"
+import { Link } from "react-router-dom";
+import { FaEye, FaEyeSlash } from 'react-icons/fa'; // Import eye icons
+
 function Signup() {
   const [formData, setFormData] = useState({
     firstName: '',
@@ -9,6 +11,8 @@ function Signup() {
     password: '',
   });
 
+  const [showPassword, setShowPassword] = useState(false); // New state to toggle visibility
+
   const handleChange = (e) => {
     setFormData({
       ...formData,
@@ -16,10 +20,13 @@ function Signup() {
     });
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Login data:', formData);
-    // Add login logic here
+    console.log('Signup data:', formData);
   };
 
   return (
@@ -65,31 +72,41 @@ function Signup() {
             />
           </div>
 
-          <div className="mb-4">
+          <div className="mb-4 position-relative">
             <label className="form-label text-purple">Create Password</label>
             <input
-              type="password"
+              type={showPassword ? 'text' : 'password'}
               name="password"
-              className="form-control border-purple"
+              className="form-control border-purple pe-5"
               value={formData.password}
               onChange={handleChange}
               required
             />
+            <span
+              onClick={togglePasswordVisibility}
+              style={{
+                position: 'absolute',
+                right: '10px',
+                top: '38px',
+                cursor: 'pointer',
+                color: '#6f42c1'
+              }}
+            >
+              {showPassword ? <FaEyeSlash /> : <FaEye />}
+            </span>
           </div>
 
-          <Link to="/dashboard">
           <button type="submit" className="btn btn-purple w-100 mb-3">
             Login
-          </button></Link>
+          </button>
 
           <div className="text-center">
-            <span>Don't have an account? </span>
-            <Link to="/studentsignin"className="text-purple fw-semibold">Sign up</Link>
+            <span>Already have an account? </span>
+            <Link to="/studentsignin" className="text-purple fw-semibold">Sign in</Link>
           </div>
         </form>
       </div>
 
-      {/* Custom styling */}
       <style>{`
         .text-purple {
           color: #6f42c1;
