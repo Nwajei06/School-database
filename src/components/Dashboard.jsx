@@ -1,75 +1,109 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaGraduationCap, FaBook, FaCheckCircle, FaTrophy, FaBars } from 'react-icons/fa';
 import { FiSettings, FiLogOut } from 'react-icons/fi';
-import { MdDashboard, MdPeople, MdSubject, MdClass, MdAssessment } from 'react-icons/md';
+import { MdDashboard, MdPeople, MdSubject, MdAssessment, MdClass } from 'react-icons/md';
+// import img1 from "../public/images/pfp.jpeg"
 
 const Dashboard = () => {
+
+    const [fadeInClass, setFadeInClass] = useState('');
+
+useEffect(() => {
+  const timeout = setTimeout(() => {
+    setFadeInClass('fade-in');
+  }, 100); // slight delay to ensure DOM is painted
+  return () => clearTimeout(timeout);
+}, []);
+
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    if (window.innerWidth < 768) setIsSidebarOpen(false); // Close on mobile
+  };
+
   return (
-    <div className="d-flex min-vh-100 bg-light">
+    <div className="min-vh-100 bg-light position-relative">
+      {/* Header */}
+      <div className="d-flex justify-content-between align-items-center p-3 border-bottom bg-white sticky-top">
+        <button className="btn btn-outline-secondary d-md-none" onClick={toggleSidebar}>
+          <FaBars />
+        </button>
+        <h4>Hey user</h4>
+        <img
+          src="/image/pfp.jpeg"
+          alt="Profile"
+          className="rounded-circle"
+          width={40}
+          height={40}
+        />
+      </div>
+
       {/* Sidebar */}
-      <aside className="text-white d-flex flex-column p-3" style={{ width: '250px', backgroundColor: '#6f42c1' }}>
-        <div className="text-center py-3 fw-bold fs-4 border-bottom border-light">SCHOOL.DB</div>
-        <nav className="flex-grow-1">
-          <NavItem icon={<MdDashboard />} label="Dashboard" active />
-          <NavItem icon={<MdPeople />} label="Pay fees" />
-          <NavItem icon={<MdSubject />} label="Subjects" />
-          <NavItem icon={<MdAssessment />} label="Results" />
-          <NavItem icon={<MdClass />} label="About" />
-          <NavItem icon={<FiSettings />} label="Settings" />
+      <aside
+        className={`bg-purple text-white p-3 position-fixed top-0 start-0 h-100 ${
+          isSidebarOpen ? 'd-block' : 'd-none'
+        } d-md-block`}
+        style={{ width: '250px', zIndex: 1050, backgroundColor: '#6f42c1' }}
+      >
+        <div className="text-center py-3 fw-bold fs-5 border-bottom border-light">SCHOOL.DB</div>
+        <nav className="mt-3 d-flex flex-column gap-2">
+          <NavItem icon={<MdDashboard />} label="Dashboard" active onClick={closeSidebar} />
+          <NavItem icon={<MdPeople />} label="Pay fees" onClick={closeSidebar} />
+          <NavItem icon={<MdSubject />} label="Subjects" onClick={closeSidebar} />
+          <NavItem icon={<MdAssessment />} label="Results" onClick={closeSidebar} />
+          <NavItem icon={<MdClass />} label="About" onClick={closeSidebar} />
+          <NavItem icon={<FiSettings />} label="Settings" onClick={closeSidebar} />
         </nav>
-        <div className="border-top pt-3">
-          <NavItem icon={<FiLogOut />} label="Logout" />
+        <div className="border-top pt-3 mt-auto">
+          <NavItem icon={<FiLogOut />} label="Logout" onClick={closeSidebar} />
         </div>
       </aside>
 
-      {/* Main Content */}
-      <main className="flex-grow-1 p-4">
-        <div className="d-flex justify-content-between align-items-center">
-          <h1 className="fs-3 fw-bold">Welcome Admin</h1>
-          <div className="d-flex align-items-center gap-3">
-            <button className="btn btn-outline-secondary">
-              <FaBars />
-            </button>
-            <img
-              src="https://via.placeholder.com/40"
-              alt="Profile"
-              className="rounded-circle"
-              width={40}
-              height={40}
-            />
-          </div>
-        </div>
+      {/* Overlay on mobile */}
+      {isSidebarOpen && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-md-none"
+          style={{ zIndex: 1040 }}
+          onClick={toggleSidebar}
+        />
+      )}
 
+      {/* Main Content */}
+      <main className="p-3" style={{ marginLeft: window.innerWidth >= 768 ? '250px' : 0 }}>
         {/* Stats */}
-        <div className="row mt-4">
-          <div className="col-md-3">
-            <StatCard icon={<FaGraduationCap />} label="Total Students" value="1,200" />
+        <div className="row g-3 mb-4">
+          <div className="col-6 col-md-3">
+            <StatCard icon={<FaGraduationCap />} label="Total Students" value="1,570" />
           </div>
-          <div className="col-md-3">
-            <StatCard icon={<FaBook />} label="Subjects Offered" value="23" />
+          <div className="col-6 col-md-3">
+            <StatCard icon={<FaBook />} label="Subjects Offered" value="19" />
           </div>
-          <div className="col-md-3">
-            <StatCard icon={<FaCheckCircle />} label="Results Published" value="95%" />
+          <div className="col-6 col-md-3">
+            <StatCard icon={<FaCheckCircle />} label="Results Published" value="0%" />
           </div>
-          <div className="col-md-3">
-            <StatCard icon={<FaTrophy />} label="Average Pass Rate" value="87%" />
+          <div className="col-6 col-md-3">
+            <StatCard icon={<FaTrophy />} label="Average Pass Rate" value="---" />
           </div>
         </div>
 
         {/* Search Section */}
-        <section className="mt-5">
-          <h2 className="fs-5 fw-semibold mb-3">Result Search</h2>
-          <div className="d-flex flex-wrap gap-2 mb-3">
+        <section className="mb-4">
+          <h5 className="fw-semibold mb-3">Result Search</h5>
+          <div className="d-flex flex-column flex-md-row gap-2 mb-2">
             <input
               type="text"
-              placeholder="Search by Student Name / Reg No"
-              className="form-control me-2 flex-grow-1"
+              placeholder="Search by students unique_id"
+              className="form-control"
             />
             <button className="btn text-white" style={{ backgroundColor: '#6f42c1' }}>
               Check Result
             </button>
           </div>
-          <div className="d-flex gap-2 mb-4">
+          <div className="d-flex flex-column flex-md-row gap-2">
             <select className="form-select">
               <option>Class</option>
             </select>
@@ -83,8 +117,8 @@ const Dashboard = () => {
         </section>
 
         {/* Recent Results */}
-        <section className="mt-4">
-          <h2 className="fs-5 fw-semibold mb-3">Recent Results</h2>
+        <section>
+          <h5 className="fw-semibold mb-3">Recent Results</h5>
           <div className="table-responsive">
             <table className="table table-bordered table-hover bg-white">
               <thead className="table-light">
@@ -99,9 +133,9 @@ const Dashboard = () => {
               </thead>
               <tbody>
                 {[
-                  { name: 'Jane Doe', reg: 'ST1023', class: 'SS1 A', term: '1st', score: 788, grade: 'Passed' },
-                  { name: 'John Smith', reg: 'ST1056', class: 'SS2 B', term: '1st', score: 652, grade: 'Passed' },
-                  { name: 'Mary Chiriwe', reg: 'ST1089', class: 'JSS3 A', term: '2nd', score: 499, grade: 'Passed' },
+                  { name: 'Jane Afolabi', reg: 'ST1023', class: 'SS1 A', term: '1st', score: 788, grade: 'Passed' },
+                  { name: 'Mark Davis', reg: 'ST1056', class: 'SS2 B', term: '1st', score: 652, grade: 'Passed' },
+                  { name: 'Chidi okoro', reg: 'ST1089', class: 'JSS3 A', term: '2nd', score: 499, grade: 'Passed' },
                 ].map((student, i) => (
                   <tr key={i}>
                     <td>{student.name}</td>
@@ -121,12 +155,13 @@ const Dashboard = () => {
   );
 };
 
-const NavItem = ({ icon, label, active }) => (
+const NavItem = ({ icon, label, active, onClick }) => (
   <div
     className={`d-flex align-items-center gap-2 p-2 rounded ${
-      active ? 'bg-white text-dark fw-semibold' : 'hover-bg-light'
+      active ? 'bg-white text-dark fw-semibold' : 'text-white'
     }`}
     style={{ cursor: 'pointer' }}
+    onClick={onClick}
   >
     <span>{icon}</span>
     <span>{label}</span>
