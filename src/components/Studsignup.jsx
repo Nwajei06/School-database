@@ -100,8 +100,8 @@ function Login() {
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
         <div className="text-center mb-4">
-          <h2 className="fw-bold text-purple">Login</h2>
-          <p className="text-muted">Welcome back! Please login to your account</p>
+          <h2 className="fw-bold text-purple">Sign Up!</h2>
+          <p className="text-muted">Welcome! Create an account</p>
         </div>
 
         <form onSubmit={handleSubmit}>
