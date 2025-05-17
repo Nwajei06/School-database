@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css'; // <-- Import Bootstrap Icons
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const navigate = useNavigate();
@@ -14,48 +18,76 @@ function Login() {
 
     setTimeout(() => {
       setIsLoggingIn(false);
-      setShowLoader(true); // Show custom loader
-    }, 1000); // Simulated login delay
+      setShowLoader(true);
+    }, 1000);
   };
 
-  // After loader shows, wait 5 seconds, then redirect
   useEffect(() => {
     if (showLoader) {
       const timer = setTimeout(() => {
         navigate('/dashboard');
       }, 5000);
-
       return () => clearTimeout(timer);
     }
   }, [showLoader, navigate]);
 
   if (showLoader) {
     return (
-      <div className="loader-screen">
-        <div className="custom-loader"></div>
-        <h4 className="text-white mt-4">Preparing your dashboard...</h4>
+      <div className="logo-loader-screen">
+        <div className="logo-circle">
+          <div className="logo-ring"></div>
+          <span className="logo-text">YourApp</span>
+        </div>
+        <h4 className="text-white mt-4 fw-bold">Preparing your dashboard...</h4>
 
         <style>{`
-          .loader-screen {
+          .logo-loader-screen {
             height: 100vh;
             width: 100vw;
-            background: #6f42c1;
+            background: radial-gradient(circle, #6f42c1, #3b2e7e);
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            color: white;
           }
 
-          .custom-loader {
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #ffffff;
+          .logo-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
             border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            animation: spin 1s linear infinite;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: pulse-ring 2s infinite ease-in-out;
           }
 
-          @keyframes spin {
+          .logo-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid white;
+            border-radius: 50%;
+            animation: spin-ring 1.5s linear infinite;
+            opacity: 0.5;
+          }
+
+          .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 2;
+            color: white;
+          }
+
+          @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+          }
+
+          @keyframes spin-ring {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
           }
@@ -73,26 +105,47 @@ function Login() {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <div className="mb-4">
-            <label className="form-label text-purple">Your password</label>
+          <div className="mb-3">
+            <label className="form-label text-purple">Name</label>
             <input
-              type="password"
+              type="text"
               className="form-control border-purple"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={name}
+              onChange={(e) => setName(e.target.value)}
               required
             />
           </div>
 
+          <div className="mb-3">
+            <label className="form-label text-purple">Email</label>
+            <input
+              type="email"
+              className="form-control border-purple"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
+
+          <div className="mb-4">
+            <label className="form-label text-purple">Password</label>
+            <div className="position-relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="form-control border-purple pe-5"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <i
+                className={`bi ${showPassword ? 'bi-eye-slash' : 'bi-eye'} toggle-password`}
+                onClick={() => setShowPassword(!showPassword)}
+              ></i>
+            </div>
+          </div>
+
           <button type="submit" className="btn btn-purple w-100" disabled={isLoggingIn}>
-            {isLoggingIn ? (
-              <>
-                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                Logging in...
-              </>
-            ) : (
-              'Login'
-            )}
+            {isLoggingIn ? 'Logging in...' : 'Login'}
           </button>
         </form>
       </div>
@@ -111,6 +164,15 @@ function Login() {
         }
         .border-purple {
           border: 1px solid #6f42c1;
+        }
+        .toggle-password {
+          position: absolute;
+          top: 50%;
+          right: 12px;
+          transform: translateY(-50%);
+          font-size: 1.25rem;
+          color: #6f42c1;
+          cursor: pointer;
         }
       `}</style>
     </div>
