@@ -1,15 +1,46 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useNavigate } from 'react-router-dom';
 
 function Login() {
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log('Signup password:', password);
-    // Add signup logic here
+    setIsLoading(true);
+
+    // Simulate login processing (2 seconds)
+    setTimeout(() => {
+      setIsLoading(false);
+      setShowAnimation(true); // show animation screen
+
+      // Wait 5 seconds for animation, then navigate
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 5000);
+    }, 2000);
   };
 
+  // 🔁 Animation screen while redirecting
+  if (showAnimation) {
+    return (
+      <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-white">
+        <div className="spinner-border text-purple" style={{ width: '4rem', height: '4rem' }} role="status"></div>
+        <p className="mt-3 text-purple fs-5">Redirecting to your dashboard...</p>
+
+        <style>{`
+          .text-purple {
+            color: #6f42c1;
+          }
+        `}</style>
+      </div>
+    );
+  }
+
+  // 🧾 Login form UI
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
       <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
@@ -30,8 +61,15 @@ function Login() {
             />
           </div>
 
-          <button type="submit" className="btn btn-purple w-100">
-            Login
+          <button type="submit" className="btn btn-purple w-100" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Logging in...
+              </>
+            ) : (
+              'Login'
+            )}
           </button>
         </form>
       </div>

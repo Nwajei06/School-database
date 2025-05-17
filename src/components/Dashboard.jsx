@@ -32,6 +32,7 @@ useEffect(() => {
         <button className="btn btn-outline-secondary d-md-none" onClick={toggleSidebar}>
           <FaBars />
         </button>
+       <h6 style={{opacity:"0"}}>i</h6>
         <h4>Hey user</h4>
         <img
           src="/image/pfp.jpeg"
