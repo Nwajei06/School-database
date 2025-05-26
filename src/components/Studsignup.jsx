@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // <-- Import Bootstrap Icons
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Login() {
   const [name, setName] = useState('');
@@ -11,16 +12,34 @@ function Login() {
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [showLoader, setShowLoader] = useState(false);
   const navigate = useNavigate();
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setIsLoggingIn(true);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
+  try {
+    const response = await fetch('http://localhost:5000/api/signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password }),
+    });
 
-    setTimeout(() => {
-      setIsLoggingIn(false);
+    const data = await response.json();
+    if (response.ok) {
+      console.log('Signup success:', data);
+      localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
       setShowLoader(true);
-    }, 1000);
-  };
+    } else {
+      alert('Signup failed: ' + data.error);
+      setIsLoggingIn(false); 
+    }
+  } catch (error) {
+    console.error('Error:', error);
+    alert('Something went wrong');
+    setIsLoggingIn(false);
+  }
+};
+
+
 
   useEffect(() => {
     if (showLoader) {
@@ -148,6 +167,8 @@ function Login() {
             {isLoggingIn ? 'Logging in...' : 'Login'}
           </button>
         </form>
+       <label htmlFor=""> Already have an account <Link to="/studentsignin">login</Link></label>
+       <label htmlFor="">Login as <Link to="/subadlogin">admin</Link></label>
       </div>
 
       <style>{`
@@ -177,6 +198,6 @@ function Login() {
       `}</style>
     </div>
   );
-}
+} 
 
 export default Login;

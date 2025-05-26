@@ -1,28 +1,51 @@
 import React, { useState, useEffect } from 'react';
-import { FaGraduationCap, FaBook, FaCheckCircle, FaTrophy, FaBars } from 'react-icons/fa';
-import { FiSettings, FiLogOut } from 'react-icons/fi';
-import { MdDashboard, MdPeople, MdSubject, MdAssessment, MdClass } from 'react-icons/md';
-// import img1 from "../public/images/pfp.jpeg"
+import axios from 'axios';
+import {
+  FaGraduationCap, FaBook, FaCheckCircle, FaTrophy, FaBars
+} from 'react-icons/fa';
+import {
+  FiSettings, FiLogOut
+} from 'react-icons/fi';
+import {
+  MdDashboard, MdPeople, MdSubject, MdAssessment, MdClass
+} from 'react-icons/md';
 
 const Dashboard = () => {
+  const [fadeInClass, setFadeInClass] = useState('');
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [user, setUser] = useState({ name: '', email: '' });
+  const [results, setResults] = useState([]);
 
-    const [fadeInClass, setFadeInClass] = useState('');
+  useEffect(() => {
+    const timeout = setTimeout(() => setFadeInClass('fade-in'), 100);
+    return () => clearTimeout(timeout);
+  }, []);
 
-useEffect(() => {
-  const timeout = setTimeout(() => {
-    setFadeInClass('fade-in');
-  }, 100); // slight delay to ensure DOM is painted
-  return () => clearTimeout(timeout);
+  useEffect(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    const { email } = JSON.parse(storedUser);
+
+    fetch(`/api/results?email=${email}`)
+      .then((res) => res.json())
+      .then((data) => {
+        // If backend returns an object like { results: [...] }
+        // setResults(data.results);
+
+        // If backend returns array directly (correct)
+        setResults(Array.isArray(data) ? data : []); // ✅ ensure it's an array
+      })
+      .catch((err) => {
+        console.error(err);
+        setResults([]);
+      });
+  }
 }, []);
 
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
+  const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => {
-    if (window.innerWidth < 768) setIsSidebarOpen(false); // Close on mobile
+    if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
 
   return (
@@ -32,24 +55,16 @@ useEffect(() => {
         <button className="btn btn-outline-secondary d-md-none" onClick={toggleSidebar}>
           <FaBars />
         </button>
-       <h6 style={{opacity:"0"}}>i</h6>
-        <h4>Hey user</h4>
-        <img
-          src="/image/pfp.jpeg"
-          alt="Profile"
-          className="rounded-circle"
-          width={40}
-          height={40}
-        />
+        <h6 style={{ opacity: '0' }}></h6>
+        <h4>Hey, {user.name || 'User'}</h4>
+        <div className="d-none d-md-block text-muted small">{user.email}</div>
+        <img src="/image/pfp.jpeg" alt="Profile" className="rounded-circle" width={40} height={40} />
       </div>
 
       {/* Sidebar */}
-      <aside
-        className={`bg-purple text-white p-3 position-fixed top-0 start-0 h-100 ${
-          isSidebarOpen ? 'd-block' : 'd-none'
-        } d-md-block`}
-        style={{ width: '250px', zIndex: 1050, backgroundColor: '#6f42c1' }}
-      >
+      <aside className={`bg-purple text-white p-3 position-fixed top-0 start-0 h-100 ${
+        isSidebarOpen ? 'd-block' : 'd-none'
+      } d-md-block`} style={{ width: '250px', zIndex: 1050, backgroundColor: '#6f42c1' }}>
         <div className="text-center py-3 fw-bold fs-5 border-bottom border-light">SCHOOL.DB</div>
         <nav className="mt-3 d-flex flex-column gap-2">
           <NavItem icon={<MdDashboard />} label="Dashboard" active onClick={closeSidebar} />
@@ -64,27 +79,22 @@ useEffect(() => {
         </div>
       </aside>
 
-      {/* Overlay on mobile */}
+      {/* Overlay */}
       {isSidebarOpen && (
-        <div
-          className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-md-none"
-          style={{ zIndex: 1040 }}
-          onClick={toggleSidebar}
-        />
+        <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-md-none" style={{ zIndex: 1040 }} onClick={toggleSidebar} />
       )}
 
       {/* Main Content */}
       <main className="p-3" style={{ marginLeft: window.innerWidth >= 768 ? '250px' : 0 }}>
-        {/* Stats */}
         <div className="row g-3 mb-4">
           <div className="col-6 col-md-3">
-            <StatCard icon={<FaGraduationCap />} label="Total Students" value="1,570" />
+            <StatCard icon={<FaGraduationCap />} label="Pay fees" value="" />
           </div>
           <div className="col-6 col-md-3">
             <StatCard icon={<FaBook />} label="Subjects Offered" value="19" />
           </div>
           <div className="col-6 col-md-3">
-            <StatCard icon={<FaCheckCircle />} label="Results Published" value="0%" />
+            <StatCard icon={<FaCheckCircle />} label="Results Published" value={`${results.length > 0 ? '100%' : '0%'}`} />
           </div>
           <div className="col-6 col-md-3">
             <StatCard icon={<FaTrophy />} label="Average Pass Rate" value="---" />
@@ -95,25 +105,13 @@ useEffect(() => {
         <section className="mb-4">
           <h5 className="fw-semibold mb-3">Result Search</h5>
           <div className="d-flex flex-column flex-md-row gap-2 mb-2">
-            <input
-              type="text"
-              placeholder="Search by students unique_id"
-              className="form-control"
-            />
-            <button className="btn text-white" style={{ backgroundColor: '#6f42c1' }}>
-              Check Result
-            </button>
+            <input type="text" placeholder="Search by students unique_id" className="form-control" />
+            <button className="btn text-white" style={{ backgroundColor: '#6f42c1' }}>Check Result</button>
           </div>
           <div className="d-flex flex-column flex-md-row gap-2">
-            <select className="form-select">
-              <option>Class</option>
-            </select>
-            <select className="form-select">
-              <option>Term</option>
-            </select>
-            <select className="form-select">
-              <option>Session</option>
-            </select>
+            <select className="form-select"><option>Class</option></select>
+            <select className="form-select"><option>Term</option></select>
+            <select className="form-select"><option>Session</option></select>
           </div>
         </section>
 
@@ -125,28 +123,26 @@ useEffect(() => {
               <thead className="table-light">
                 <tr>
                   <th>Student Name</th>
-                  <th>Reg No</th>
-                  <th>Class</th>
-                  <th>Term</th>
+                  <th>Subject</th>
                   <th>Total Score</th>
                   <th>Grade</th>
                 </tr>
               </thead>
               <tbody>
-                {[
-                  { name: 'Jane Afolabi', reg: 'ST1023', class: 'SS1 A', term: '1st', score: 788, grade: 'Passed' },
-                  { name: 'Mark Davis', reg: 'ST1056', class: 'SS2 B', term: '1st', score: 652, grade: 'Passed' },
-                  { name: 'Chidi okoro', reg: 'ST1089', class: 'JSS3 A', term: '2nd', score: 499, grade: 'Passed' },
-                ].map((student, i) => (
-                  <tr key={i}>
-                    <td>{student.name}</td>
-                    <td>{student.reg}</td>
-                    <td>{student.class}</td>
-                    <td>{student.term}</td>
-                    <td>{student.score}</td>
-                    <td className="text-success">{student.grade}</td>
+                {results.length === 0 ? (
+                  <tr>
+                    <td colSpan="4" className="text-center">No results available</td>
                   </tr>
-                ))}
+                ) : (
+                  results.map((res, i) => (
+                    <tr key={i}>
+                      <td>{res.name}</td>
+                      <td>{res.subject}</td>
+                      <td>{res.score}</td>
+                      <td className="text-success">{res.grade}</td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
@@ -157,13 +153,9 @@ useEffect(() => {
 };
 
 const NavItem = ({ icon, label, active, onClick }) => (
-  <div
-    className={`d-flex align-items-center gap-2 p-2 rounded ${
-      active ? 'bg-white text-dark fw-semibold' : 'text-white'
-    }`}
-    style={{ cursor: 'pointer' }}
-    onClick={onClick}
-  >
+  <div className={`d-flex align-items-center gap-2 p-2 rounded ${
+    active ? 'bg-white text-dark fw-semibold' : 'text-white'
+  }`} style={{ cursor: 'pointer' }} onClick={onClick}>
     <span>{icon}</span>
     <span>{label}</span>
   </div>
@@ -171,9 +163,7 @@ const NavItem = ({ icon, label, active, onClick }) => (
 
 const StatCard = ({ icon, label, value }) => (
   <div className="card shadow-sm p-3 d-flex flex-row align-items-center gap-3">
-    <div className="fs-3" style={{ color: '#6f42c1' }}>
-      {icon}
-    </div>
+    <div className="fs-3" style={{ color: '#6f42c1' }}>{icon}</div>
     <div>
       <div className="text-muted small">{label}</div>
       <div className="fw-semibold fs-5">{value}</div>
