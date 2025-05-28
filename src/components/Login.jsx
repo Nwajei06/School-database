@@ -22,21 +22,18 @@ function Login() {
       });
 
       if (!res.ok) {
-  const data = await res.json();
-  setError(data.message || 'Invalid password');
-  setIsLoading(false);
-  return;
-}
+        const data = await res.json();
+        setError(data.message || 'Invalid password');
+        setIsLoading(false);
+        return;
+      }
 
-const data = await res.json();
-localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
+      const data = await res.json();
+      localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
 
-
-      // Login successful
       setIsLoading(false);
       setShowAnimation(true);
 
-      // Wait 5 seconds for animation, then navigate
       setTimeout(() => {
         navigate('/dashboard');
       }, 5000);
@@ -47,20 +44,66 @@ localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email
     }
   };
 
-  // Animation screen while redirecting
+  // Show animated screen during redirect
   if (showAnimation) {
     return (
-      <div className="d-flex flex-column justify-content-center align-items-center vh-100 bg-white">
-        <div
-          className="spinner-border text-purple"
-          style={{ width: '4rem', height: '4rem' }}
-          role="status"
-        ></div>
-        <p className="mt-3 text-purple fs-5">Redirecting to your dashboard...</p>
+      <div className="logo-loader-screen">
+        <div className="logo-circle">
+          <div className="logo-ring"></div>
+          <span className="logo-text">YourApp</span>
+        </div>
+        <h4 className="text-white mt-4 fw-bold">Redirecting to your dashboard...</h4>
 
         <style>{`
-          .text-purple {
-            color: #6f42c1;
+          .logo-loader-screen {
+            height: 100vh;
+            width: 100vw;
+            background: radial-gradient(circle, #6f42c1, #3b2e7e);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+          }
+
+          .logo-circle {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            animation: pulse-ring 2s infinite ease-in-out;
+          }
+
+          .logo-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 4px solid white;
+            border-radius: 50%;
+            animation: spin-ring 1.5s linear infinite;
+            opacity: 0.5;
+          }
+
+          .logo-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            z-index: 2;
+            color: white;
+          }
+
+          @keyframes pulse-ring {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
+            70% { transform: scale(1.1); box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+          }
+
+          @keyframes spin-ring {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
           }
         `}</style>
       </div>
@@ -69,10 +112,7 @@ localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email
 
   return (
     <div className="d-flex justify-content-center align-items-center vh-100 bg-light">
-      <div
-        className="card shadow-lg p-4"
-        style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}
-      >
+      <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
         <div className="text-center mb-4">
           <h2 className="fw-bold text-purple">Login</h2>
           <p className="text-muted">Welcome back! Please login to your account</p>
@@ -99,11 +139,7 @@ localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email
           <button type="submit" className="btn btn-purple w-100" disabled={isLoading}>
             {isLoading ? (
               <>
-                <span
-                  className="spinner-border spinner-border-sm me-2"
-                  role="status"
-                  aria-hidden="true"
-                ></span>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
                 Logging in...
               </>
             ) : (
@@ -113,7 +149,6 @@ localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email
         </form>
       </div>
 
-      {/* Custom styling */}
       <style>{`
         .text-purple {
           color: #6f42c1;
@@ -128,9 +163,8 @@ localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email
         }
         .border-purple {
           border: 1px solid #6f42c1;
-        } 
+        }
       `}</style>
-    
     </div>
   );
 }
