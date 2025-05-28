@@ -3,7 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { useNavigate } from 'react-router-dom';
 
 function Login() {
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [showAnimation, setShowAnimation] = useState(false);
   const [error, setError] = useState('');
@@ -15,20 +15,20 @@ function Login() {
     setError('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/login', {
+      const res = await fetch('http://localhost:5000/api/email-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+        body: JSON.stringify({ email }),
       });
 
+      const data = await res.json();
+
       if (!res.ok) {
-        const data = await res.json();
-        setError(data.message || 'Invalid password');
+        setError(data.message || 'Login failed');
         setIsLoading(false);
         return;
       }
 
-      const data = await res.json();
       localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
 
       setIsLoading(false);
@@ -36,15 +36,15 @@ function Login() {
 
       setTimeout(() => {
         navigate('/dashboard');
-      }, 5000);
+      }, 4000);
 
     } catch (err) {
+      console.error(err);
       setError('Login failed. Please try again.');
       setIsLoading(false);
     }
   };
 
-  // Show animated screen during redirect
   if (showAnimation) {
     return (
       <div className="logo-loader-screen">
@@ -115,18 +115,19 @@ function Login() {
       <div className="card shadow-lg p-4" style={{ width: '100%', maxWidth: '400px', borderRadius: '20px' }}>
         <div className="text-center mb-4">
           <h2 className="fw-bold text-purple">Login</h2>
-          <p className="text-muted">Welcome back! Please login to your account</p>
+          <p className="text-muted">Welcome back! Enter your email</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="form-label text-purple">Your password</label>
+            <label className="form-label text-purple">Your email</label>
             <input
-              type="password"
+              type="email"
               className="form-control border-purple"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
+              placeholder="@gmail.com"
             />
           </div>
 
@@ -150,9 +151,7 @@ function Login() {
       </div>
 
       <style>{`
-        .text-purple {
-          color: #6f42c1;
-        }
+        .text-purple { color: #6f42c1; }
         .btn-purple {
           background-color: #6f42c1;
           color: white;

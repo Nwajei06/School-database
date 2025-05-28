@@ -22,26 +22,22 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    const { email } = JSON.parse(storedUser);
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const userObj = JSON.parse(storedUser);
+      setUser(userObj); // set user info here
 
-    fetch(`/api/results?email=${email}`)
-      .then((res) => res.json())
-      .then((data) => {
-        // If backend returns an object like { results: [...] }
-        // setResults(data.results);
-
-        // If backend returns array directly (correct)
-        setResults(Array.isArray(data) ? data : []); // ✅ ensure it's an array
-      })
-      .catch((err) => {
-        console.error(err);
-        setResults([]);
-      });
-  }
-}, []);
-
+      fetch(`/api/results?email=${encodeURIComponent(userObj.email)}`)
+        .then(res => res.json())
+        .then(data => {
+          setResults(Array.isArray(data) ? data : []);
+        })
+        .catch(err => {
+          console.error(err);
+          setResults([]);
+        });
+    }
+  }, []);
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => {

@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import React, { useState, useEffect } from 'react';
 
 function SubadminResultForm() {
-  const [results, setResults] = useState([{ name: '', subject: '', score: '', grade: '' }]);
-  const [message, setMessage] = useState('');
+  const [results, setResults] = useState([{ name: '', subject: '', score: '', grade: '', email: '' }]);
+  const [students, setStudents] = useState([]); // to store all students for dropdown
+
+  useEffect(() => {
+    // fetch all students to populate dropdown
+    fetch('http://localhost:5000/api/students')
+      .then(res => res.json())
+      .then(data => setStudents(data))
+      .catch(err => console.error(err));
+  }, []);
 
   const calculateGrade = (score) => {
     if (score >= 75) return 'A';
     if (score >= 60) return 'B';
-    if (score >= 60) return 'C';
-    if (score >= 45) return 'D';
-    if (score >= 40) return 'E';
+    if (score >= 45) return 'C';
+    if (score >= 40) return 'D';
     return 'F';
   };
 
@@ -18,7 +24,6 @@ function SubadminResultForm() {
     const updated = [...results];
     updated[index][field] = value;
 
-    // Auto-calculate grade based on score if score is modified
     if (field === 'score') {
       const scoreVal = parseInt(value, 10);
       if (!isNaN(scoreVal)) {
@@ -28,11 +33,17 @@ function SubadminResultForm() {
       }
     }
 
+    // If email changes, update name as well for convenience
+    if (field === 'email') {
+      const student = students.find(s => s.email === value);
+      updated[index].name = student ? student.name : '';
+    }
+
     setResults(updated);
   };
 
   const handleAddRow = () => {
-    setResults([...results, { name: '', subject: '', score: '', grade: '' }]);
+    setResults([...results, { name: '', subject: '', score: '', grade: '', email: '' }]);
   };
 
   const handleSubmit = async (e) => {
@@ -40,16 +51,14 @@ function SubadminResultForm() {
     try {
       const response = await fetch('http://localhost:5000/api/results', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(results)
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(results),
       });
 
       const data = await response.json();
       if (response.ok) {
         alert('Results submitted successfully!');
-        setResults([{ name: '', subject: '', score: '', grade: '' }]);
+        setResults([{ name: '', subject: '', score: '', grade: '', email: '' }]);
       } else {
         alert(data.message || 'Error submitting results.');
       }
@@ -59,19 +68,14 @@ function SubadminResultForm() {
     }
   };
 
-
   return (
     <div className="container mt-5">
       <h3 className="text-center text-primary mb-4">Sub-Admin Result Entry</h3>
-      {message && (
-        <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'}`}>
-          {message}
-        </div>
-      )}
       <form onSubmit={handleSubmit}>
         <table className="table table-bordered table-striped">
           <thead className="table-primary text-center">
             <tr>
+              <th>Student Email</th>
               <th>Name</th>
               <th>Subject</th>
               <th>Score</th>
@@ -82,12 +86,27 @@ function SubadminResultForm() {
             {results.map((row, index) => (
               <tr key={index}>
                 <td>
+                  <select
+                    className="form-select"
+                    value={row.email}
+                    onChange={(e) => handleChange(index, 'email', e.target.value)}
+                    required
+                  >
+                    <option value="">Select student email</option>
+                    {students.map(s => (
+                      <option key={s.email} value={s.email}>
+                        {s.email}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+                <td>
                   <input
                     type="text"
                     className="form-control"
                     value={row.name}
-                    onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    required
+                    readOnly
+                    placeholder="Student name"
                   />
                 </td>
                 <td>
