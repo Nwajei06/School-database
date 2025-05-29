@@ -16,28 +16,44 @@ const Dashboard = () => {
   const [user, setUser] = useState({ name: '', email: '' });
   const [results, setResults] = useState([]);
 
+  // Initial fade-in animation
   useEffect(() => {
     const timeout = setTimeout(() => setFadeInClass('fade-in'), 100);
     return () => clearTimeout(timeout);
   }, []);
 
+  // Load user from localStorage
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) {
       const userObj = JSON.parse(storedUser);
-      setUser(userObj); // set user info here
-
-      fetch(`/api/results?email=${encodeURIComponent(userObj.email)}`)
-        .then(res => res.json())
-        .then(data => {
-          setResults(Array.isArray(data) ? data : []);
-        })
-        .catch(err => {
-          console.error(err);
-          setResults([]);
-        });
+      console.log("Loaded user from localStorage:", userObj); // ✅ Debug
+      setUser(userObj);
     }
   }, []);
+
+  // Fetch results after user is set
+ useEffect(() => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    const userObj = JSON.parse(storedUser);
+    setUser(userObj);
+
+    fetch(`http://localhost:5000/api/results?email=${encodeURIComponent(userObj.email)}`)
+      .then(res => {
+        if (!res.ok) throw new Error("Failed to fetch");
+        return res.json();
+      })
+      .then(data => {
+        setResults(Array.isArray(data) ? data : []);
+      })
+      .catch(err => {
+        console.error("Error fetching results:", err);
+        setResults([]);
+      });
+  }
+}, []);
+
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
   const closeSidebar = () => {
@@ -90,7 +106,7 @@ const Dashboard = () => {
             <StatCard icon={<FaBook />} label="Subjects Offered" value="19" />
           </div>
           <div className="col-6 col-md-3">
-            <StatCard icon={<FaCheckCircle />} label="Results Published" value={`${results.length > 0 ? '100%' : '0%'}`} />
+            <StatCard icon={<FaCheckCircle />} label="Results Published" value={results.length > 0 ? '100%' : '0%'} />
           </div>
           <div className="col-6 col-md-3">
             <StatCard icon={<FaTrophy />} label="Average Pass Rate" value="---" />
@@ -111,7 +127,7 @@ const Dashboard = () => {
           </div>
         </section>
 
-        {/* Recent Results */}
+        {/* Results Table */}
         <section>
           <h5 className="fw-semibold mb-3">Recent Results</h5>
           <div className="table-responsive">
