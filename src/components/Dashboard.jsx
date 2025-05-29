@@ -33,26 +33,26 @@ const Dashboard = () => {
   }, []);
 
   // Fetch results after user is set
- useEffect(() => {
-  const storedUser = localStorage.getItem('user');
-  if (storedUser) {
-    const userObj = JSON.parse(storedUser);
-    setUser(userObj);
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const userObj = JSON.parse(storedUser);
+      setUser(userObj);
 
-    fetch(`http://localhost:5000/api/results?email=${encodeURIComponent(userObj.email)}`)
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to fetch");
-        return res.json();
-      })
-      .then(data => {
-        setResults(Array.isArray(data) ? data : []);
-      })
-      .catch(err => {
-        console.error("Error fetching results:", err);
-        setResults([]);
-      });
-  }
-}, []);
+      fetch(`http://localhost:5000/api/results?email=${encodeURIComponent(userObj.email)}`)
+        .then(res => {
+          if (!res.ok) throw new Error("Failed to fetch");
+          return res.json();
+        })
+        .then(data => {
+          setResults(Array.isArray(data) ? data : []);
+        })
+        .catch(err => {
+          console.error("Error fetching results:", err);
+          setResults([]);
+        });
+    }
+  }, []);
 
 
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -74,9 +74,8 @@ const Dashboard = () => {
       </div>
 
       {/* Sidebar */}
-      <aside className={`bg-purple text-white p-3 position-fixed top-0 start-0 h-100 ${
-        isSidebarOpen ? 'd-block' : 'd-none'
-      } d-md-block`} style={{ width: '250px', zIndex: 1050, backgroundColor: '#6f42c1' }}>
+      <aside className={`bg-purple text-white p-3 position-fixed top-0 start-0 h-100 ${isSidebarOpen ? 'd-block' : 'd-none'
+        } d-md-block`} style={{ width: '250px', zIndex: 1050, backgroundColor: '#6f42c1' }}>
         <div className="text-center py-3 fw-bold fs-5 border-bottom border-light">SCHOOL.DB</div>
         <nav className="mt-3 d-flex flex-column gap-2">
           <NavItem icon={<MdDashboard />} label="Dashboard" active onClick={closeSidebar} />
@@ -165,9 +164,8 @@ const Dashboard = () => {
 };
 
 const NavItem = ({ icon, label, active, onClick }) => (
-  <div className={`d-flex align-items-center gap-2 p-2 rounded ${
-    active ? 'bg-white text-dark fw-semibold' : 'text-white'
-  }`} style={{ cursor: 'pointer' }} onClick={onClick}>
+  <div className={`d-flex align-items-center gap-2 p-2 rounded ${active ? 'bg-white text-dark fw-semibold' : 'text-white'
+    }`} style={{ cursor: 'pointer' }} onClick={onClick}>
     <span>{icon}</span>
     <span>{label}</span>
   </div>

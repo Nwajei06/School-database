@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -29,7 +29,7 @@ function Login() {
         return;
       }
 
-      localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email }));
+      localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, }));
 
       setIsLoading(false);
       setShowAnimation(true);
@@ -52,7 +52,7 @@ function Login() {
           <div className="logo-ring"></div>
           <span className="logo-text">YourApp</span>
         </div>
-        <h4 className="text-white mt-4 fw-bold">Redirecting to your dashboard...</h4>
+        <h4 className="text-white mt-4 fw-bold">Getting your dashboard ready</h4>
 
         <style>{`
           .logo-loader-screen {
@@ -130,13 +130,20 @@ function Login() {
               placeholder="@gmail.com"
             />
           </div>
+            <label className="form-label text-purple">password</label>
 
+<input
+              type="password"
+              className="form-control border-purple"
+              required
+            />
           {error && (
             <div className="alert alert-danger" role="alert">
               {error}
             </div>
           )}
-
+<br /> 
+Signin as <Link to="/subad">Admin</Link> <br /><br />
           <button type="submit" className="btn btn-purple w-100" disabled={isLoading}>
             {isLoading ? (
               <>
